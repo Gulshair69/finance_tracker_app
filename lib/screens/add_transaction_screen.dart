@@ -125,37 +125,42 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Category Dropdown
+              // Category Dropdown (Optional)
               DropdownButtonFormField<CategoryModel>(
-                initialValue: _selectedCategory,
+                value: _selectedCategory,
                 decoration: InputDecoration(
-                  labelText: "Category",
+                  labelText: "Category (Optional)",
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                   prefixIcon: const Icon(Icons.category),
                 ),
-                items: categories.map((category) {
-                  return DropdownMenuItem<CategoryModel>(
-                    value: category,
-                    child: Row(
-                      children: [
-                        Icon(
-                          _getIconData(category.icon),
-                          color: Color(category.color),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(category.name),
-                      ],
-                    ),
-                  );
-                }).toList(),
+                items: [
+                  const DropdownMenuItem<CategoryModel>(
+                    value: null,
+                    child: Text("None"),
+                  ),
+                  ...categories.map((category) {
+                    return DropdownMenuItem<CategoryModel>(
+                      value: category,
+                      child: Row(
+                        children: [
+                          Icon(
+                            _getIconData(category.icon),
+                            color: Color(category.color),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(category.name),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ],
                 onChanged: (value) {
                   setState(() {
                     _selectedCategory = value;
                   });
                 },
-                validator: (value) => value == null ? "Select category" : null,
               ),
               const SizedBox(height: 16),
 
@@ -209,14 +214,13 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   ),
                 ),
                 onPressed: () async {
-                  if (_formKey.currentState!.validate() &&
-                      _selectedCategory != null) {
+                  if (_formKey.currentState!.validate()) {
                     final transaction = TransactionModel(
                       id: const Uuid().v4(),
                       title: titleController.text.trim(),
                       amount: double.parse(amountController.text.trim()),
                       type: _selectedType,
-                      category: _selectedCategory!.name,
+                      category: _selectedCategory?.name ?? "Uncategorized",
                       date: selectedDate,
                       description: descriptionController.text.trim().isEmpty
                           ? null
