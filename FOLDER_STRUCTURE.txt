@@ -1,0 +1,240 @@
+================================================================================
+                    FINANCE TRACKER APP - FOLDER STRUCTURE
+================================================================================
+
+PROJECT ROOT: finance_tracker_app/
+====================================
+
+finance_tracker_app/
+│
+├── 📁 android/                          [Android Platform Files]
+│   ├── 📁 app/
+│   │   ├── 📄 build.gradle.kts         [App-level build configuration]
+│   │   ├── 📄 google-services.json      [🔥 Firebase Android Config - IMPORTANT]
+│   │   └── 📁 src/
+│   │       ├── 📁 debug/
+│   │       │   └── 📄 AndroidManifest.xml
+│   │       ├── 📁 main/
+│   │       │   ├── 📄 AndroidManifest.xml
+│   │       │   └── 📁 kotlin/
+│   │       └── 📁 profile/
+│   ├── 📄 build.gradle.kts              [Project-level build configuration]
+│   ├── 📄 gradle.properties
+│   ├── 📄 settings.gradle.kts
+│   ├── 📁 gradle/
+│   │   └── 📁 wrapper/
+│   │       ├── 📄 gradle-wrapper.jar
+│   │       └── 📄 gradle-wrapper.properties
+│   └── 📄 key.properties                [Keystore config - if signing APK]
+│
+├── 📁 ios/                               [iOS Platform Files]
+│   ├── 📁 Flutter/
+│   │   └── 📄 Generated.xcconfig
+│   ├── 📁 Runner/
+│   │   ├── 📄 AppDelegate.swift
+│   │   ├── 📄 Info.plist
+│   │   └── 📄 GoogleService-Info.plist   [🔥 Firebase iOS Config]
+│   └── 📁 Runner.xcodeproj/
+│
+├── 📁 lib/                               [🎯 MAIN APPLICATION CODE]
+│   │
+│   ├── 📁 constants/                    [App Constants]
+│   │   └── 📄 app_colors.dart           [Color definitions]
+│   │
+│   ├── 📁 models/                        [📊 Data Models]
+│   │   ├── 📄 transaction_model.dart     [Transaction data structure]
+│   │   ├── 📄 category_model.dart       [Category data structure]
+│   │   ├── 📄 budget_model.dart         [Budget data structure]
+│   │   ├── 📄 goal_model.dart           [Goal data structure]
+│   │   ├── 📄 recurring_transaction_model.dart
+│   │   └── 📄 user_profile_model.dart   [User profile data]
+│   │
+│   ├── 📁 providers/                    [🔄 State Management (Provider)]
+│   │   ├── 📄 auth_provider.dart         [Authentication state]
+│   │   ├── 📄 transaction_provider.dart  [Transaction state]
+│   │   ├── 📄 category_provider.dart    [Category state]
+│   │   ├── 📄 budget_provider.dart      [Budget state]
+│   │   ├── 📄 goal_provider.dart        [Goal state]
+│   │   ├── 📄 analytics_provider.dart   [Analytics calculations]
+│   │   └── 📄 user_profile_provider.dart [User profile state]
+│   │
+│   ├── 📁 routes/                        [🧭 Navigation]
+│   │   └── 📄 app_routes.dart           [Route definitions]
+│   │
+│   ├── 📁 screens/                      [📱 UI Screens]
+│   │   ├── 📄 splash_screen.dart         [App launch screen]
+│   │   ├── 📄 onboarding_screen.dart    [First-time user intro]
+│   │   ├── 📄 welcome_screen.dart       [Welcome/login options]
+│   │   ├── 📄 login_screen.dart         [User login]
+│   │   ├── 📄 signup_screen.dart        [User registration]
+│   │   ├── 📄 initial_balance_screen.dart [💰 First-time balance entry]
+│   │   ├── 📄 dashboard_screen.dart     [📊 Main dashboard]
+│   │   ├── 📄 add_transaction_screen.dart [➕ Add transaction]
+│   │   ├── 📄 history_screen.dart       [📜 Transaction history]
+│   │   ├── 📄 analytics_screen.dart     [📈 Analytics & charts]
+│   │   ├── 📄 budget_screen.dart        [💵 Budget management]
+│   │   ├── 📄 goals_screen.dart         [🎯 Financial goals]
+│   │   ├── 📄 category_management_screen.dart [🏷️ Category management]
+│   │   ├── 📄 recurring_transactions_screen.dart [🔄 Recurring transactions]
+│   │   └── 📄 profile_screen.dart       [👤 User profile]
+│   │
+│   ├── 📁 services/                     [🔧 Backend Services]
+│   │   ├── 📄 firebase_services.dart    [🔥 Firebase Firestore operations]
+│   │   └── 📄 local_db_service.dart     [💾 Local storage (if needed)]
+│   │
+│   ├── 📁 widgets/                      [🧩 Reusable UI Components]
+│   │   ├── 📄 transaction_card.dart     [Transaction display card]
+│   │   ├── 📄 summary_card.dart         [Balance summary card]
+│   │   ├── 📄 chart_widgets.dart        [📊 Chart components]
+│   │   ├── 📄 budget_card.dart          [Budget display card]
+│   │   ├── 📄 goal_card.dart            [Goal display card]
+│   │   ├── 📄 category_chip.dart        [Category chip widget]
+│   │   ├── 📄 transaction_type_selector.dart [Income/Expense selector]
+│   │   ├── 📄 date_range_picker.dart    [Date range selection]
+│   │   ├── 📄 export_dialog.dart        [Export options dialog]
+│   │   └── 📄 budget_warning_banner.dart [⚠️ Budget warning banner]
+│   │
+│   └── 📄 main.dart                     [🚀 App entry point]
+│
+├── 📁 assets/                           [🎨 App Assets]
+│   ├── 📁 fonts/                        [Custom Fonts]
+│   │   ├── 📄 Poppins-Bold.ttf
+│   │   └── 📄 Poppins-Regular.ttf
+│   └── 📁 images/                        [Images]
+│       └── 📄 onboarding.png
+│
+├── 📁 test/                             [🧪 Tests]
+│   └── 📄 widget_test.dart
+│
+├── 📁 build/                            [🔨 Build Output (Generated)]
+│   └── 📁 app/
+│       └── 📁 outputs/
+│           └── 📁 flutter-apk/
+│               ├── 📄 app-debug.apk     [Debug APK]
+│               └── 📄 app-release.apk  [Release APK]
+│
+├── 📄 pubspec.yaml                      [📦 Dependencies & Configuration]
+├── 📄 pubspec.lock                      [Locked dependency versions]
+├── 📄 analysis_options.yaml             [Linter configuration]
+├── 📄 README.md                         [Project documentation]
+├── 📄 INSTRUCTIONS.md                   [📖 Complete setup instructions]
+├── 📄 BUILD_APK_INSTRUCTIONS.txt        [📱 APK build guide]
+└── 📄 FOLDER_STRUCTURE.txt              [📁 This file]
+
+
+KEY FILES EXPLANATION
+=====================
+
+🔥 FIREBASE CONFIGURATION FILES:
+--------------------------------
+- android/app/google-services.json
+  → Firebase Android configuration
+  → MUST be downloaded from Firebase Console
+  → Place in: android/app/
+
+- ios/Runner/GoogleService-Info.plist
+  → Firebase iOS configuration
+  → Download from Firebase Console
+  → Place in: ios/Runner/
+
+
+📦 CONFIGURATION FILES:
+----------------------
+- pubspec.yaml
+  → Flutter dependencies
+  → App version
+  → Asset declarations
+
+- android/app/build.gradle.kts
+  → Android app build configuration
+  → Package name
+  → Version code
+
+- android/key.properties (if signing)
+  → Keystore credentials
+  → DO NOT commit to version control
+
+
+🚀 ENTRY POINTS:
+---------------
+- lib/main.dart
+  → Application entry point
+  → Firebase initialization
+  → Provider setup
+  → Route configuration
+
+
+📊 DATA FLOW:
+-------------
+1. User Input → Screens (lib/screens/)
+2. Screens → Providers (lib/providers/)
+3. Providers → Services (lib/services/)
+4. Services → Firebase Firestore
+5. Firebase → Real-time updates → Providers → Screens
+
+
+🗄️ DATABASE STRUCTURE (Firestore):
+-----------------------------------
+users/
+  └── {userId}/
+      ├── transactions/          [User transactions]
+      ├── categories/            [User categories]
+      ├── budgets/               [User budgets]
+      ├── goals/                 [User goals]
+      ├── recurringTransactions/ [Recurring transactions]
+      └── (profile data)        [Initial balance, etc.]
+
+
+📱 APK OUTPUT LOCATION:
+----------------------
+After building APK:
+build/app/outputs/flutter-apk/
+  ├── app-debug.apk
+  ├── app-release.apk
+  ├── app-armeabi-v7a-release.apk
+  ├── app-arm64-v8a-release.apk
+  └── app-x86_64-release.apk
+
+
+🔐 SECURITY NOTES:
+------------------
+⚠️  DO NOT COMMIT TO VERSION CONTROL:
+   - android/app/google-services.json
+   - ios/Runner/GoogleService-Info.plist
+   - android/key.properties
+   - Any API keys or secrets
+
+
+📝 IMPORTANT DIRECTORIES:
+-------------------------
+lib/screens/        → All UI screens
+lib/providers/      → State management
+lib/services/       → Backend operations
+lib/models/         → Data structures
+lib/widgets/        → Reusable components
+android/app/        → Android-specific files
+build/              → Generated build files (can be deleted)
+
+
+CLEANING PROJECT:
+=================
+To clean build artifacts:
+flutter clean
+
+This removes the build/ folder and forces a fresh build.
+
+
+DEPENDENCIES LOCATION:
+======================
+All Flutter packages are managed in:
+- pubspec.yaml (declarations)
+- pubspec.lock (locked versions)
+- .dart_tool/package_config.json (resolved packages)
+
+Run: flutter pub get to install/update
+
+
+================================================================================
+                            END OF FOLDER STRUCTURE
+================================================================================
+

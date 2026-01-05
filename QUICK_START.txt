@@ -1,0 +1,72 @@
+================================================================================
+                    FINANCE TRACKER APP - QUICK START GUIDE
+================================================================================
+
+🚀 FASTEST WAY TO BUILD APK
+============================
+
+1. INSTALL FLUTTER
+   Download: https://flutter.dev/docs/get-started/install
+   Verify: flutter doctor
+
+2. SETUP FIREBASE
+   - Create project at https://console.firebase.google.com/
+   - Enable Authentication (Email/Password)
+   - Create Firestore Database
+   - Download google-services.json
+   - Place in: android/app/google-services.json
+
+3. INSTALL DEPENDENCIES
+   flutter pub get
+
+4. BUILD APK
+   flutter build apk --release
+
+5. FIND APK
+   Location: build/app/outputs/flutter-apk/app-release.apk
+
+6. INSTALL ON DEVICE
+   - Copy APK to phone
+   - Enable "Install from Unknown Sources"
+   - Tap APK to install
+
+
+📁 KEY FOLDERS
+==============
+
+lib/                    → Main app code
+lib/screens/            → All app screens
+lib/providers/          → State management
+lib/services/           → Firebase operations
+android/app/            → Android config
+build/app/outputs/      → APK output location
+
+
+📄 IMPORTANT FILES
+==================
+
+android/app/google-services.json  → Firebase config (MUST HAVE)
+pubspec.yaml                      → Dependencies
+lib/main.dart                     → App entry point
+
+
+🔧 COMMON COMMANDS
+==================
+
+flutter pub get          → Install packages
+flutter clean            → Clean build
+flutter build apk        → Build APK
+flutter run              → Run app
+flutter doctor           → Check setup
+
+
+📖 FULL DOCUMENTATION
+=====================
+
+See INSTRUCTIONS.md for complete guide
+See BUILD_APK_INSTRUCTIONS.txt for detailed APK build steps
+See FOLDER_STRUCTURE.txt for folder explanations
+
+
+================================================================================
+
