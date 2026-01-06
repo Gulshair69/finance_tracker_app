@@ -5,7 +5,6 @@ import '../constants/app_colors.dart';
 import '../providers/category_provider.dart';
 import '../models/category_model.dart';
 import '../models/transaction_model.dart';
-import '../widgets/category_chip.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class CategoryManagementScreen extends StatefulWidget {

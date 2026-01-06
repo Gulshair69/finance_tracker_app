@@ -116,10 +116,12 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 ),
                 validator: (value) {
                   if (value!.isEmpty) return "Enter amount";
-                  if (double.tryParse(value) == null)
+                  if (double.tryParse(value) == null) {
                     return "Enter valid amount";
-                  if (double.parse(value) <= 0)
+                  }
+                  if (double.parse(value) <= 0) {
                     return "Amount must be greater than 0";
+                  }
                   return null;
                 },
               ),
@@ -127,7 +129,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
               // Category Dropdown (Optional)
               DropdownButtonFormField<CategoryModel>(
-                value: _selectedCategory,
+                initialValue: _selectedCategory,
                 decoration: InputDecoration(
                   labelText: "Category (Optional)",
                   border: OutlineInputBorder(
@@ -154,7 +156,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         ],
                       ),
                     );
-                  }).toList(),
+                  }),
                 ],
                 onChanged: (value) {
                   setState(() {
@@ -215,38 +217,75 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                 ),
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    final transaction = TransactionModel(
-                      id: const Uuid().v4(),
-                      title: titleController.text.trim(),
-                      amount: double.parse(amountController.text.trim()),
-                      type: _selectedType,
-                      category: _selectedCategory?.name ?? "Uncategorized",
-                      date: selectedDate,
-                      description: descriptionController.text.trim().isEmpty
-                          ? null
-                          : descriptionController.text.trim(),
-                      userId: user.uid,
-                      createdAt: DateTime.now(),
+                    // Show confirmation alert before adding transaction
+                    final shouldProceed = await showDialog<bool>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Confirm Transaction'),
+                          content: Text(
+                            'Are you sure you want to add this ${_selectedType.name} transaction?\n\n'
+                            'Title: ${titleController.text.trim()}\n'
+                            'Amount: \$${amountController.text.trim()}\n'
+                            'Category: ${_selectedCategory?.name ?? "Uncategorized"}\n'
+                            'Date: ${selectedDate.toLocal().toString().split(' ')[0]}',
+                          ),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(false);
+                              },
+                              child: const Text('Cancel'),
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop(true);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                              ),
+                              child: const Text('Confirm'),
+                            ),
+                          ],
+                        );
+                      },
                     );
 
-                    final success = await transactionProvider.addTransaction(
-                      transaction,
-                    );
+                    if (shouldProceed == true && mounted) {
+                      final transaction = TransactionModel(
+                        id: const Uuid().v4(),
+                        title: titleController.text.trim(),
+                        amount: double.parse(amountController.text.trim()),
+                        type: _selectedType,
+                        category: _selectedCategory?.name ?? "Uncategorized",
+                        date: selectedDate,
+                        description: descriptionController.text.trim().isEmpty
+                            ? null
+                            : descriptionController.text.trim(),
+                        userId: user.uid,
+                        createdAt: DateTime.now(),
+                      );
 
-                    if (success && mounted) {
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Transaction added successfully'),
-                        ),
+                      final success = await transactionProvider.addTransaction(
+                        transaction,
                       );
-                    } else if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Error: ${transactionProvider.error}'),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
+
+                      if (success && mounted) {
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Transaction added successfully'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      } else if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error: ${transactionProvider.error}'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
                     }
                   }
                 },

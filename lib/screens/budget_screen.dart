@@ -195,8 +195,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
                     ),
                     validator: (value) {
                       if (value!.isEmpty) return "Enter amount";
-                      if (double.tryParse(value) == null)
+                      if (double.tryParse(value) == null) {
                         return "Enter valid amount";
+                      }
                       return null;
                     },
                   ),
@@ -280,8 +281,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   decoration: const InputDecoration(labelText: "Budget Amount"),
                   validator: (value) {
                     if (value!.isEmpty) return "Enter amount";
-                    if (double.tryParse(value) == null)
+                    if (double.tryParse(value) == null) {
                       return "Enter valid amount";
+                    }
                     return null;
                   },
                 ),

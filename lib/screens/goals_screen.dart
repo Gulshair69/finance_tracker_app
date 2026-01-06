@@ -150,8 +150,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
                     ),
                     validator: (value) {
                       if (value!.isEmpty) return "Enter amount";
-                      if (double.tryParse(value) == null)
+                      if (double.tryParse(value) == null) {
                         return "Enter valid amount";
+                      }
                       return null;
                     },
                   ),
@@ -251,8 +252,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
                     ),
                     validator: (value) {
                       if (value!.isEmpty) return "Enter amount";
-                      if (double.tryParse(value) == null)
+                      if (double.tryParse(value) == null) {
                         return "Enter valid amount";
+                      }
                       return null;
                     },
                   ),
@@ -267,8 +269,9 @@ class _GoalsScreenState extends State<GoalsScreen> {
                     ),
                     validator: (value) {
                       if (value!.isEmpty) return "Enter amount";
-                      if (double.tryParse(value) == null)
+                      if (double.tryParse(value) == null) {
                         return "Enter valid amount";
+                      }
                       return null;
                     },
                   ),

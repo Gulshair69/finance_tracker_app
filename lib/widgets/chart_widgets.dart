@@ -15,41 +15,131 @@ class IncomeExpensePieChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final total = income + expense;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    // Responsive sizing based on screen size
+    final chartSize = screenWidth < 360
+        ? screenWidth * 0.7
+        : screenWidth < 400
+        ? screenWidth * 0.75
+        : screenWidth * 0.8;
+    final centerSpaceRadius = screenWidth < 360
+        ? 40.0
+        : screenWidth < 400
+        ? 50.0
+        : 60.0;
+    final radius = screenWidth < 360
+        ? 70.0
+        : screenWidth < 400
+        ? 85.0
+        : 100.0;
+    final fontSize = screenWidth < 360
+        ? 10.0
+        : screenWidth < 400
+        ? 11.0
+        : 12.0;
+
     if (total == 0) {
-      return const Center(
-        child: Text('No data available'),
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Text(
+            'No data available',
+            style: TextStyle(fontSize: screenWidth < 360 ? 12 : 14),
+          ),
+        ),
       );
     }
 
-    return PieChart(
-      PieChartData(
-        sectionsSpace: 2,
-        centerSpaceRadius: 60,
-        sections: [
-          PieChartSectionData(
-            value: income,
-            title: '\$${income.toStringAsFixed(0)}',
-            color: AppColors.secondary,
-            radius: 100,
-            titleStyle: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: chartSize,
+            width: chartSize,
+            child: PieChart(
+              PieChartData(
+                sectionsSpace: 2,
+                centerSpaceRadius: centerSpaceRadius,
+                sections: [
+                  PieChartSectionData(
+                    value: income,
+                    title: '\$${income.toStringAsFixed(0)}',
+                    color: AppColors.secondary,
+                    radius: radius,
+                    titleStyle: TextStyle(
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                  PieChartSectionData(
+                    value: expense,
+                    title: '\$${expense.toStringAsFixed(0)}',
+                    color: Colors.red.shade400,
+                    radius: radius,
+                    titleStyle: TextStyle(
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-          PieChartSectionData(
-            value: expense,
-            title: '\$${expense.toStringAsFixed(0)}',
-            color: Colors.red.shade400,
-            radius: 100,
-            titleStyle: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+          const SizedBox(height: 16),
+          // Legend
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _buildLegendItem(
+                context,
+                'Income',
+                AppColors.secondary,
+                screenWidth,
+              ),
+              const SizedBox(width: 16),
+              _buildLegendItem(
+                context,
+                'Expense',
+                Colors.red.shade400,
+                screenWidth,
+              ),
+            ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildLegendItem(
+    BuildContext context,
+    String label,
+    Color color,
+    double screenWidth,
+  ) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: screenWidth < 360 ? 12 : 16,
+          height: screenWidth < 360 ? 12 : 16,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: screenWidth < 360 ? 11 : 13,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -67,9 +157,7 @@ class CategoryPieChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (categoryData.isEmpty) {
-      return const Center(
-        child: Text('No data available'),
-      );
+      return const Center(child: Text('No data available'));
     }
 
     final colors = [
@@ -93,11 +181,14 @@ class CategoryPieChart extends StatelessWidget {
         sections: entries.asMap().entries.map((entry) {
           final index = entry.key;
           final data = entry.value;
-          final color = categoryColors?[data.key] ?? colors[index % colors.length];
-          
+          final color =
+              categoryColors?[data.key] ?? colors[index % colors.length];
+
           return PieChartSectionData(
             value: data.value,
-            title: data.key.length > 8 ? '${data.key.substring(0, 8)}...' : data.key,
+            title: data.key.length > 8
+                ? '${data.key.substring(0, 8)}...'
+                : data.key,
             color: color,
             radius: 80,
             titleStyle: const TextStyle(
@@ -115,17 +206,12 @@ class CategoryPieChart extends StatelessWidget {
 class MonthlyTrendChart extends StatelessWidget {
   final Map<String, Map<String, double>> monthlyData;
 
-  const MonthlyTrendChart({
-    super.key,
-    required this.monthlyData,
-  });
+  const MonthlyTrendChart({super.key, required this.monthlyData});
 
   @override
   Widget build(BuildContext context) {
     if (monthlyData.isEmpty) {
-      return const Center(
-        child: Text('No data available'),
-      );
+      return const Center(child: Text('No data available'));
     }
 
     final months = monthlyData.keys.toList();
@@ -165,12 +251,8 @@ class MonthlyTrendChart extends StatelessWidget {
               },
             ),
           ),
-          rightTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          topTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
+          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
         borderData: FlBorderData(show: true),
         minX: 0,
@@ -207,4 +289,3 @@ class MonthlyTrendChart extends StatelessWidget {
     );
   }
 }
-
