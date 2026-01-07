@@ -1,12 +1,61 @@
 import 'package:flutter/material.dart';
-import '../models/budget_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../models/transaction_model.dart';
-import '../services/firebase_services.dart';
-import 'package:uuid/uuid.dart';
+
+class BudgetModel {
+  final String id;
+  final String category;
+  final double amount;
+  final BudgetPeriod period;
+
+  BudgetModel({
+    required this.id,
+    required this.category,
+    required this.amount,
+    required this.period,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'category': category,
+      'amount': amount,
+      'period': period.name,
+    };
+  }
+
+  factory BudgetModel.fromMap(Map<String, dynamic> map) {
+    return BudgetModel(
+      id: map['id'] ?? '',
+      category: map['category'] ?? '',
+      amount: (map['amount'] ?? 0.0).toDouble(),
+      period: BudgetPeriod.values.firstWhere(
+        (e) => e.name == map['period'],
+        orElse: () => BudgetPeriod.monthly,
+      ),
+    );
+  }
+
+  BudgetModel copyWith({
+    String? id,
+    String? category,
+    double? amount,
+    BudgetPeriod? period,
+  }) {
+    return BudgetModel(
+      id: id ?? this.id,
+      category: category ?? this.category,
+      amount: amount ?? this.amount,
+      period: period ?? this.period,
+    );
+  }
+}
+
+enum BudgetPeriod { weekly, monthly }
 
 class BudgetProvider extends ChangeNotifier {
-  final FirebaseService _firebaseService = FirebaseService();
-  final Uuid _uuid = const Uuid();
+  static const String _budgetsKey = 'budgets';
 
   List<BudgetModel> _budgets = [];
   bool _isLoading = false;
@@ -16,46 +65,54 @@ class BudgetProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  // Initialize and listen to budgets
-  void initializeBudgets() {
-    _firebaseService.getBudgetsStream().listen(
-      (budgets) {
-        _budgets = budgets;
-        _error = null;
-        notifyListeners();
-      },
-      onError: (error) {
-        _error = error.toString();
-        notifyListeners();
-      },
-    );
+  BudgetProvider() {
+    _loadBudgets();
   }
 
-  // Load budgets (one-time)
-  Future<void> loadBudgets() async {
+  Future<void> _loadBudgets() async {
     _isLoading = true;
-    _error = null;
     notifyListeners();
 
     try {
-      _budgets = await _firebaseService.getBudgets();
+      final prefs = await SharedPreferences.getInstance();
+      final budgetsJson = prefs.getString(_budgetsKey);
+      
+      if (budgetsJson != null) {
+        final List<dynamic> budgetsList = json.decode(budgetsJson);
+        _budgets = budgetsList.map((b) => BudgetModel.fromMap(b)).toList();
+      } else {
+        _budgets = [];
+      }
+
       _error = null;
     } catch (e) {
       _error = e.toString();
+      _budgets = [];
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  // Add budget
+  Future<void> _saveBudgets() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final budgetsList = _budgets.map((b) => b.toMap()).toList();
+      await prefs.setString(_budgetsKey, json.encode(budgetsList));
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+    }
+  }
+
   Future<bool> addBudget(BudgetModel budget) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      await _firebaseService.addBudget(budget);
+      _budgets.add(budget);
+      await _saveBudgets();
       _error = null;
       return true;
     } catch (e) {
@@ -67,14 +124,37 @@ class BudgetProvider extends ChangeNotifier {
     }
   }
 
-  // Update budget
   Future<bool> updateBudget(BudgetModel budget) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      await _firebaseService.updateBudget(budget);
+      final index = _budgets.indexWhere((b) => b.id == budget.id);
+      if (index != -1) {
+        _budgets[index] = budget;
+        await _saveBudgets();
+        _error = null;
+        return true;
+      }
+      return false;
+    } catch (e) {
+      _error = e.toString();
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> deleteBudget(String id) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _budgets.removeWhere((b) => b.id == id);
+      await _saveBudgets();
       _error = null;
       return true;
     } catch (e) {
@@ -86,23 +166,12 @@ class BudgetProvider extends ChangeNotifier {
     }
   }
 
-  // Delete budget
-  Future<bool> deleteBudget(String id) async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
+  Future<void> loadBudgets() async {
+    await _loadBudgets();
+  }
 
-    try {
-      await _firebaseService.deleteBudget(id);
-      _error = null;
-      return true;
-    } catch (e) {
-      _error = e.toString();
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+  void initializeBudgets() {
+    _loadBudgets();
   }
 
   // Calculate spent amount for a budget
@@ -143,4 +212,3 @@ class BudgetProvider extends ChangeNotifier {
     return spent > budget.amount;
   }
 }
-

@@ -4,12 +4,10 @@ import '../constants/app_colors.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/category_provider.dart';
 import '../providers/budget_provider.dart';
-import '../providers/goal_provider.dart';
 import '../providers/user_profile_provider.dart';
 import '../widgets/transaction_card.dart';
 import '../widgets/summary_card.dart';
 import '../widgets/budget_card.dart';
-import '../widgets/goal_card.dart';
 import '../widgets/budget_warning_banner.dart';
 import '../routes/app_routes.dart';
 
@@ -39,7 +37,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         context,
         listen: false,
       );
-      final goalProvider = Provider.of<GoalProvider>(context, listen: false);
       final userProfileProvider = Provider.of<UserProfileProvider>(
         context,
         listen: false,
@@ -48,7 +45,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       transactionProvider.initializeTransactions();
       categoryProvider.initializeCategories();
       budgetProvider.initializeBudgets();
-      goalProvider.initializeGoals();
       userProfileProvider.checkUserProfile();
     });
   }
@@ -57,7 +53,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final transactionProvider = Provider.of<TransactionProvider>(context);
     final budgetProvider = Provider.of<BudgetProvider>(context);
-    final goalProvider = Provider.of<GoalProvider>(context);
     final userProfileProvider = Provider.of<UserProfileProvider>(context);
 
     final now = DateTime.now();
@@ -92,7 +87,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
         .take(5)
         .toList();
     final activeBudgets = budgetProvider.budgets.take(3).toList();
-    final activeGoals = goalProvider.getActiveGoals().take(3).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -109,9 +103,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          await transactionProvider.loadTransactions();
-          await budgetProvider.loadBudgets();
-          await goalProvider.loadGoals();
+      await transactionProvider.loadTransactions();
+      await budgetProvider.loadBudgets();
         },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -306,39 +299,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     },
                   );
                 }),
-              ],
-
-              // Active Goals
-              if (activeGoals.isNotEmpty) ...[
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        "Active Goals",
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, AppRoutes.goals);
-                        },
-                        child: const Text('View All'),
-                      ),
-                    ],
-                  ),
-                ),
-                ...activeGoals.map(
-                  (goal) => GoalCard(
-                    goal: goal,
-                    onDelete: () {
-                      goalProvider.deleteGoal(goal.id);
-                    },
-                  ),
-                ),
               ],
 
               // Recent Transactions

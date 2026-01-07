@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:uuid/uuid.dart';
 import '../constants/app_colors.dart';
 import '../providers/category_provider.dart';
-import '../models/category_model.dart';
 import '../models/transaction_model.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class CategoryManagementScreen extends StatefulWidget {
   static const String routeName = '/categoryManagement';
@@ -26,7 +23,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
         context,
         listen: false,
       );
-      categoryProvider.loadCategories();
+      categoryProvider.initializeCategories();
     });
   }
 
@@ -40,8 +37,11 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
         appBar: AppBar(
           title: const Text("Categories"),
           backgroundColor: AppColors.primary,
-          bottom: const TabBar(
-            tabs: [
+          bottom: TabBar(
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white.withOpacity(0.7),
+            indicatorColor: Colors.white,
+            tabs: const [
               Tab(text: "Expense"),
               Tab(text: "Income"),
             ],
@@ -71,7 +71,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
   }
 
   Widget _buildCategoryList(
-    List<CategoryModel> categories,
+    List<String> categories,
     TransactionType type,
     CategoryProvider categoryProvider,
   ) {
@@ -97,37 +97,16 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
         final category = categories[index];
         return ListTile(
           leading: CircleAvatar(
-            backgroundColor: Color(category.color).withOpacity(0.2),
-            child: Icon(
-              _getIconData(category.icon),
-              color: Color(category.color),
-            ),
+            backgroundColor: AppColors.primary.withOpacity(0.2),
+            child: Icon(Icons.category, color: AppColors.primary),
           ),
-          title: Text(category.name),
-          subtitle: category.isDefault
-              ? const Text("Default Category", style: TextStyle(fontSize: 12))
-              : null,
-          trailing: category.isDefault
-              ? null
-              : Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () => _showEditCategoryDialog(
-                        context,
-                        category,
-                        categoryProvider,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: () {
-                        categoryProvider.deleteCategory(category.id);
-                      },
-                    ),
-                  ],
-                ),
+          title: Text(category),
+          trailing: IconButton(
+            icon: const Icon(Icons.delete, color: Colors.red),
+            onPressed: () {
+              categoryProvider.deleteCategory(category, type);
+            },
+          ),
         );
       },
     );
@@ -139,23 +118,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
   ) {
     final formKey = GlobalKey<FormState>();
     final nameController = TextEditingController();
-    final iconController = TextEditingController(text: 'category');
     TransactionType selectedType = TransactionType.expense;
-    int selectedColor = AppColors.primary.value;
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) return;
-
-    final colors = [
-      AppColors.primary.value,
-      AppColors.secondary.value,
-      0xFFFF6B6B,
-      0xFF4ECDC4,
-      0xFFFFE66D,
-      0xFF95E1D3,
-      0xFFAA96DA,
-      0xFFFF6B9D,
-    ];
 
     showDialog(
       context: context,
@@ -177,7 +140,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<TransactionType>(
-                    initialValue: selectedType,
+                    value: selectedType,
                     decoration: const InputDecoration(labelText: "Type"),
                     items: TransactionType.values.map((type) {
                       return DropdownMenuItem<TransactionType>(
@@ -189,43 +152,6 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
                       setState(() => selectedType = value!);
                     },
                   ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: iconController,
-                    decoration: const InputDecoration(
-                      labelText: "Icon Name",
-                      hintText: "e.g., restaurant, shopping_bag",
-                    ),
-                    validator: (value) =>
-                        value!.isEmpty ? "Enter icon name" : null,
-                  ),
-                  const SizedBox(height: 16),
-                  const Text("Select Color:"),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    children: colors.map((color) {
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() => selectedColor = color);
-                        },
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: Color(color),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: selectedColor == color
-                                  ? Colors.black
-                                  : Colors.transparent,
-                              width: 3,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
                 ],
               ),
             ),
@@ -236,155 +162,47 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
               child: const Text("Cancel"),
             ),
             ElevatedButton(
-              onPressed: () async {
-                if (formKey.currentState!.validate()) {
-                  final category = CategoryModel(
-                    id: const Uuid().v4(),
-                    name: nameController.text.trim(),
-                    icon: iconController.text.trim(),
-                    color: selectedColor,
-                    type: selectedType,
-                    isDefault: false,
-                    userId: user.uid,
-                  );
-
-                  final success = await categoryProvider.addCategory(category);
-                  if (success && context.mounted) {
-                    Navigator.pop(context);
-                  }
-                }
-              },
-              child: const Text("Add"),
+              onPressed: categoryProvider.isLoading
+                  ? null
+                  : () async {
+                      if (formKey.currentState!.validate()) {
+                        final success = await categoryProvider.addCategory(
+                          nameController.text.trim(),
+                          selectedType,
+                        );
+                        if (context.mounted) {
+                          if (success) {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Category added successfully'),
+                                backgroundColor: Colors.green,
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  categoryProvider.error ?? 'Failed to add category',
+                                ),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        }
+                      }
+                    },
+              child: categoryProvider.isLoading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text("Add"),
             ),
           ],
         ),
       ),
     );
-  }
-
-  void _showEditCategoryDialog(
-    BuildContext context,
-    CategoryModel category,
-    CategoryProvider categoryProvider,
-  ) {
-    final formKey = GlobalKey<FormState>();
-    final nameController = TextEditingController(text: category.name);
-    final iconController = TextEditingController(text: category.icon);
-    int selectedColor = category.color;
-
-    final colors = [
-      AppColors.primary.value,
-      AppColors.secondary.value,
-      0xFFFF6B6B,
-      0xFF4ECDC4,
-      0xFFFFE66D,
-      0xFF95E1D3,
-      0xFFAA96DA,
-      0xFFFF6B9D,
-    ];
-
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text("Edit Category"),
-          content: Form(
-            key: formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: nameController,
-                    decoration: const InputDecoration(
-                      labelText: "Category Name",
-                    ),
-                    validator: (value) => value!.isEmpty ? "Enter name" : null,
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: iconController,
-                    decoration: const InputDecoration(labelText: "Icon Name"),
-                    validator: (value) =>
-                        value!.isEmpty ? "Enter icon name" : null,
-                  ),
-                  const SizedBox(height: 16),
-                  const Text("Select Color:"),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8,
-                    children: colors.map((color) {
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() => selectedColor = color);
-                        },
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: Color(color),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: selectedColor == color
-                                  ? Colors.black
-                                  : Colors.transparent,
-                              width: 3,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (formKey.currentState!.validate()) {
-                  final updatedCategory = category.copyWith(
-                    name: nameController.text.trim(),
-                    icon: iconController.text.trim(),
-                    color: selectedColor,
-                  );
-
-                  final success = await categoryProvider.updateCategory(
-                    updatedCategory,
-                  );
-                  if (success && context.mounted) {
-                    Navigator.pop(context);
-                  }
-                }
-              },
-              child: const Text("Update"),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  IconData _getIconData(String iconName) {
-    final iconMap = {
-      'restaurant': Icons.restaurant,
-      'directions_car': Icons.directions_car,
-      'shopping_bag': Icons.shopping_bag,
-      'receipt': Icons.receipt,
-      'movie': Icons.movie,
-      'favorite': Icons.favorite,
-      'school': Icons.school,
-      'category': Icons.category,
-      'work': Icons.work,
-      'laptop': Icons.laptop,
-      'trending_up': Icons.trending_up,
-      'card_giftcard': Icons.card_giftcard,
-      'attach_money': Icons.attach_money,
-    };
-    return iconMap[iconName] ?? Icons.category;
   }
 }

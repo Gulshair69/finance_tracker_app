@@ -1,68 +1,68 @@
 import 'package:flutter/material.dart';
-import '../models/category_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../models/transaction_model.dart';
-import '../services/firebase_services.dart';
-import 'package:uuid/uuid.dart';
 
 class CategoryProvider extends ChangeNotifier {
-  final FirebaseService _firebaseService = FirebaseService();
-  final Uuid _uuid = const Uuid();
+  static const String _expenseCategoriesKey = 'expense_categories';
+  static const String _incomeCategoriesKey = 'income_categories';
 
-  List<CategoryModel> _categories = [];
+  List<String> _expenseCategories = [];
+  List<String> _incomeCategories = [];
   bool _isLoading = false;
   String? _error;
-  bool _initialized = false;
 
-  List<CategoryModel> get categories => _categories;
+  List<String> get expenseCategories => _expenseCategories;
+  List<String> get incomeCategories => _incomeCategories;
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  // Initialize categories and set up listener
-  Future<void> initializeCategories() async {
-    if (_initialized) return;
-
-    _isLoading = true;
-    notifyListeners();
-
-    try {
-      // Initialize default categories if needed
-      await _firebaseService.initializeDefaultCategories();
-
-      // Set up real-time listener
-      _firebaseService.getCategoriesStream().listen(
-        (categories) {
-          _categories = categories;
-          _error = null;
-          _isLoading = false;
-          _initialized = true;
-          notifyListeners();
-        },
-        onError: (error) {
-          _error = error.toString();
-          _isLoading = false;
-          notifyListeners();
-        },
-      );
-    } catch (e) {
-      _error = e.toString();
-      _isLoading = false;
-      notifyListeners();
-    }
+  CategoryProvider() {
+    _loadCategories();
   }
 
-  // Load categories (one-time)
-  Future<void> loadCategories({TransactionType? type}) async {
+  Future<void> _loadCategories() async {
     _isLoading = true;
-    _error = null;
     notifyListeners();
 
     try {
-      // Initialize defaults if first time
-      if (!_initialized) {
-        await _firebaseService.initializeDefaultCategories();
+      final prefs = await SharedPreferences.getInstance();
+      
+      // Load expense categories
+      final expenseJson = prefs.getString(_expenseCategoriesKey);
+      if (expenseJson != null) {
+        _expenseCategories = List<String>.from(json.decode(expenseJson));
+      } else {
+        // Initialize with default expense categories
+        _expenseCategories = [
+          'Food',
+          'Transport',
+          'Shopping',
+          'Bills',
+          'Entertainment',
+          'Health',
+          'Education',
+          'Other'
+        ];
+        await _saveCategories();
       }
 
-      _categories = await _firebaseService.getCategories(type: type);
+      // Load income categories
+      final incomeJson = prefs.getString(_incomeCategoriesKey);
+      if (incomeJson != null) {
+        _incomeCategories = List<String>.from(json.decode(incomeJson));
+      } else {
+        // Initialize with default income categories
+        _incomeCategories = [
+          'Salary',
+          'Business',
+          'Investment',
+          'Gift',
+          'Other'
+        ];
+        await _saveCategories();
+      }
+
       _error = null;
     } catch (e) {
       _error = e.toString();
@@ -72,28 +72,40 @@ class CategoryProvider extends ChangeNotifier {
     }
   }
 
-  // Get categories by type
-  List<CategoryModel> getCategoriesByType(TransactionType type) {
-    return _categories.where((cat) => cat.type == type).toList();
-  }
-
-  // Get category by ID
-  CategoryModel? getCategoryById(String id) {
+  Future<void> _saveCategories() async {
     try {
-      return _categories.firstWhere((cat) => cat.id == id);
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_expenseCategoriesKey, json.encode(_expenseCategories));
+      await prefs.setString(_incomeCategoriesKey, json.encode(_incomeCategories));
     } catch (e) {
-      return null;
+      _error = e.toString();
+      notifyListeners();
     }
   }
 
-  // Add category
-  Future<bool> addCategory(CategoryModel category) async {
+  List<String> getCategoriesByType(TransactionType type) {
+    return type == TransactionType.expense ? _expenseCategories : _incomeCategories;
+  }
+
+  Future<bool> addCategory(String category, TransactionType type) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      await _firebaseService.addCategory(category);
+      if (type == TransactionType.expense) {
+        if (!_expenseCategories.contains(category)) {
+          _expenseCategories.add(category);
+          _expenseCategories.sort();
+        }
+      } else {
+        if (!_incomeCategories.contains(category)) {
+          _incomeCategories.add(category);
+          _incomeCategories.sort();
+        }
+      }
+
+      await _saveCategories();
       _error = null;
       return true;
     } catch (e) {
@@ -105,14 +117,19 @@ class CategoryProvider extends ChangeNotifier {
     }
   }
 
-  // Update category
-  Future<bool> updateCategory(CategoryModel category) async {
+  Future<bool> deleteCategory(String category, TransactionType type) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      await _firebaseService.updateCategory(category);
+      if (type == TransactionType.expense) {
+        _expenseCategories.remove(category);
+      } else {
+        _incomeCategories.remove(category);
+      }
+
+      await _saveCategories();
       _error = null;
       return true;
     } catch (e) {
@@ -124,23 +141,12 @@ class CategoryProvider extends ChangeNotifier {
     }
   }
 
-  // Delete category
-  Future<bool> deleteCategory(String id) async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
+  Future<void> loadCategories({TransactionType? type}) async {
+    await _loadCategories();
+  }
 
-    try {
-      await _firebaseService.deleteCategory(id);
-      _error = null;
-      return true;
-    } catch (e) {
-      _error = e.toString();
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
+  Future<void> initializeCategories() async {
+    await _loadCategories();
   }
 }
 

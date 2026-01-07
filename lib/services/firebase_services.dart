@@ -4,7 +4,6 @@ import 'package:uuid/uuid.dart';
 import '../models/transaction_model.dart';
 import '../models/category_model.dart';
 import '../models/budget_model.dart';
-import '../models/goal_model.dart';
 import '../models/recurring_transaction_model.dart';
 
 class FirebaseService {
@@ -434,102 +433,6 @@ class FirebaseService {
           .delete();
     } catch (e) {
       throw Exception('Error deleting budget: $e');
-    }
-  }
-
-  // ==================== GOAL OPERATIONS ====================
-
-  // Add goal
-  Future<String> addGoal(GoalModel goal) async {
-    try {
-      final userId = currentUserId;
-      if (userId == null) throw Exception('User not authenticated');
-
-      await _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('goals')
-          .doc(goal.id)
-          .set(goal.toMap());
-
-      return goal.id;
-    } catch (e) {
-      throw Exception('Error adding goal: $e');
-    }
-  }
-
-  // Get goals stream
-  Stream<List<GoalModel>> getGoalsStream() {
-    final userId = currentUserId;
-    if (userId == null) {
-      return Stream.value([]);
-    }
-
-    return _firestore
-        .collection('users')
-        .doc(userId)
-        .collection('goals')
-        .orderBy('deadline')
-        .snapshots()
-        .map((snapshot) {
-      return snapshot.docs
-          .map((doc) => GoalModel.fromFirestore(doc))
-          .toList();
-    });
-  }
-
-  // Get goals (one-time)
-  Future<List<GoalModel>> getGoals() async {
-    final userId = currentUserId;
-    if (userId == null) return [];
-
-    try {
-      final snapshot = await _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('goals')
-          .orderBy('deadline')
-          .get();
-
-      return snapshot.docs
-          .map((doc) => GoalModel.fromFirestore(doc))
-          .toList();
-    } catch (e) {
-      throw Exception('Error getting goals: $e');
-    }
-  }
-
-  // Update goal
-  Future<void> updateGoal(GoalModel goal) async {
-    try {
-      final userId = currentUserId;
-      if (userId == null) throw Exception('User not authenticated');
-
-      await _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('goals')
-          .doc(goal.id)
-          .update(goal.toMap());
-    } catch (e) {
-      throw Exception('Error updating goal: $e');
-    }
-  }
-
-  // Delete goal
-  Future<void> deleteGoal(String goalId) async {
-    try {
-      final userId = currentUserId;
-      if (userId == null) throw Exception('User not authenticated');
-
-      await _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('goals')
-          .doc(goalId)
-          .delete();
-    } catch (e) {
-      throw Exception('Error deleting goal: $e');
     }
   }
 

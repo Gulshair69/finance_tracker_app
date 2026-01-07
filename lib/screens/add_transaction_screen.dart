@@ -7,7 +7,6 @@ import '../constants/app_colors.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/category_provider.dart';
 import '../models/transaction_model.dart';
-import '../models/category_model.dart';
 import '../widgets/transaction_type_selector.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -25,7 +24,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final TextEditingController descriptionController = TextEditingController();
 
   TransactionType _selectedType = TransactionType.expense;
-  CategoryModel? _selectedCategory;
+  String? _selectedCategory;
   DateTime selectedDate = DateTime.now();
   final bool _isRecurring = false;
 
@@ -128,8 +127,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               const SizedBox(height: 16),
 
               // Category Dropdown (Optional)
-              DropdownButtonFormField<CategoryModel>(
-                initialValue: _selectedCategory,
+              DropdownButtonFormField<String>(
+                value: _selectedCategory,
                 decoration: InputDecoration(
                   labelText: "Category (Optional)",
                   border: OutlineInputBorder(
@@ -138,23 +137,14 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   prefixIcon: const Icon(Icons.category),
                 ),
                 items: [
-                  const DropdownMenuItem<CategoryModel>(
+                  const DropdownMenuItem<String>(
                     value: null,
                     child: Text("None"),
                   ),
                   ...categories.map((category) {
-                    return DropdownMenuItem<CategoryModel>(
+                    return DropdownMenuItem<String>(
                       value: category,
-                      child: Row(
-                        children: [
-                          Icon(
-                            _getIconData(category.icon),
-                            color: Color(category.color),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(category.name),
-                        ],
-                      ),
+                      child: Text(category),
                     );
                   }),
                 ],
@@ -227,7 +217,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                             'Are you sure you want to add this ${_selectedType.name} transaction?\n\n'
                             'Title: ${titleController.text.trim()}\n'
                             'Amount: \$${amountController.text.trim()}\n'
-                            'Category: ${_selectedCategory?.name ?? "Uncategorized"}\n'
+                            'Category: ${_selectedCategory ?? "Uncategorized"}\n'
                             'Date: ${selectedDate.toLocal().toString().split(' ')[0]}',
                           ),
                           actions: [
@@ -257,7 +247,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                         title: titleController.text.trim(),
                         amount: double.parse(amountController.text.trim()),
                         type: _selectedType,
-                        category: _selectedCategory?.name ?? "Uncategorized",
+                        category: _selectedCategory ?? "Uncategorized",
                         date: selectedDate,
                         description: descriptionController.text.trim().isEmpty
                             ? null
@@ -301,22 +291,4 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     );
   }
 
-  IconData _getIconData(String iconName) {
-    final iconMap = {
-      'restaurant': Icons.restaurant,
-      'directions_car': Icons.directions_car,
-      'shopping_bag': Icons.shopping_bag,
-      'receipt': Icons.receipt,
-      'movie': Icons.movie,
-      'favorite': Icons.favorite,
-      'school': Icons.school,
-      'category': Icons.category,
-      'work': Icons.work,
-      'laptop': Icons.laptop,
-      'trending_up': Icons.trending_up,
-      'card_giftcard': Icons.card_giftcard,
-      'attach_money': Icons.attach_money,
-    };
-    return iconMap[iconName] ?? Icons.category;
-  }
 }

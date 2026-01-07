@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
-import '../models/budget_model.dart';
+import '../providers/budget_provider.dart';
 
 class BudgetCard extends StatelessWidget {
   final BudgetModel budget;

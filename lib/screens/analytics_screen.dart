@@ -6,10 +6,6 @@ import '../providers/analytics_provider.dart';
 import '../models/transaction_model.dart';
 import '../widgets/chart_widgets.dart';
 import '../widgets/date_range_picker.dart';
-import '../widgets/export_dialog.dart';
-import 'dart:convert';
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
 
 class AnalyticsScreen extends StatefulWidget {
   static const String routeName = '/analytics';
@@ -53,20 +49,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       appBar: AppBar(
         title: const Text("Analytics"),
         backgroundColor: AppColors.primary,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.download),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (context) => ExportDialog(
-                  onExportCSV: () => _exportToCSV(transactionProvider),
-                  onExportJSON: () => _exportToJSON(transactionProvider),
-                ),
-              );
-            },
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -283,13 +265,18 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        "Average Daily Spending (Last 30 days)",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Text(
+                          "Average Daily Spending (Last 30 days)",
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
                         ),
                       ),
+                      const SizedBox(width: 8),
                       Text(
                         '\$${avgDailySpending.toStringAsFixed(2)}',
                         style: const TextStyle(
@@ -335,64 +322,5 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     );
   }
 
-  Future<void> _exportToCSV(TransactionProvider provider) async {
-    try {
-      final transactions = provider.transactions;
-      final csv = StringBuffer();
-      csv.writeln('Title,Amount,Type,Category,Date,Description');
-
-      for (var tx in transactions) {
-        csv.writeln(
-          '${tx.title},"${tx.amount}",${tx.type.name},${tx.category},"${tx.date.toIso8601String()}","${tx.description ?? ""}"',
-        );
-      }
-
-      final directory = await getApplicationDocumentsDirectory();
-      final file = File('${directory.path}/transactions_${DateTime.now().millisecondsSinceEpoch}.csv');
-      await file.writeAsString(csv.toString());
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Exported to ${file.path}')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Export failed: $e')),
-        );
-      }
-    }
-  }
-
-  Future<void> _exportToJSON(TransactionProvider provider) async {
-    try {
-      final transactions = provider.transactions;
-      final jsonData = transactions.map((tx) => {
-        'title': tx.title,
-        'amount': tx.amount,
-        'type': tx.type.name,
-        'category': tx.category,
-        'date': tx.date.toIso8601String(),
-        'description': tx.description,
-      }).toList();
-
-      final directory = await getApplicationDocumentsDirectory();
-      final file = File('${directory.path}/transactions_${DateTime.now().millisecondsSinceEpoch}.json');
-      await file.writeAsString(jsonEncode(jsonData));
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Exported to ${file.path}')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Export failed: $e')),
-        );
-      }
-    }
-  }
 }
 

@@ -6,12 +6,9 @@ import '../providers/budget_provider.dart';
 import '../providers/category_provider.dart';
 import '../providers/transaction_provider.dart';
 import '../providers/user_profile_provider.dart';
-import '../models/budget_model.dart';
-import '../models/category_model.dart';
 import '../models/transaction_model.dart';
 import '../widgets/budget_card.dart';
 import '../widgets/budget_warning_banner.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class BudgetScreen extends StatefulWidget {
   static const String routeName = '/budget';
@@ -36,7 +33,7 @@ class _BudgetScreenState extends State<BudgetScreen> {
         listen: false,
       );
       budgetProvider.loadBudgets();
-      categoryProvider.loadCategories();
+      categoryProvider.initializeCategories();
     });
   }
 
@@ -149,11 +146,8 @@ class _BudgetScreenState extends State<BudgetScreen> {
   ) {
     final formKey = GlobalKey<FormState>();
     final amountController = TextEditingController();
-    CategoryModel? selectedCategory;
+    String? selectedCategory;
     BudgetPeriod selectedPeriod = BudgetPeriod.monthly;
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user == null) return;
 
     final expenseCategories = categoryProvider.getCategoriesByType(
       TransactionType.expense,
@@ -170,12 +164,12 @@ class _BudgetScreenState extends State<BudgetScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  DropdownButtonFormField<CategoryModel>(
+                  DropdownButtonFormField<String>(
                     decoration: const InputDecoration(labelText: "Category"),
                     items: expenseCategories.map((cat) {
-                      return DropdownMenuItem<CategoryModel>(
+                      return DropdownMenuItem<String>(
                         value: cat,
-                        child: Text(cat.name),
+                        child: Text(cat),
                       );
                     }).toList(),
                     onChanged: (value) {
@@ -231,11 +225,9 @@ class _BudgetScreenState extends State<BudgetScreen> {
                   selectedCategory != null) {
                 final budget = BudgetModel(
                   id: const Uuid().v4(),
-                  category: selectedCategory!.name,
+                  category: selectedCategory!,
                   amount: double.parse(amountController.text),
                   period: selectedPeriod,
-                  startDate: DateTime.now(),
-                  userId: user.uid,
                 );
 
                 final success = await budgetProvider.addBudget(budget);

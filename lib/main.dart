@@ -7,7 +7,6 @@ import 'providers/auth_provider.dart';
 import 'providers/transaction_provider.dart';
 import 'providers/category_provider.dart';
 import 'providers/budget_provider.dart';
-import 'providers/goal_provider.dart';
 import 'providers/analytics_provider.dart';
 import 'providers/user_profile_provider.dart';
 import 'routes/app_routes.dart';
@@ -30,7 +29,6 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
         ChangeNotifierProvider(create: (_) => BudgetProvider()),
-        ChangeNotifierProvider(create: (_) => GoalProvider()),
         ChangeNotifierProvider(create: (_) => UserProfileProvider()),
         ChangeNotifierProxyProvider<TransactionProvider, AnalyticsProvider>(
           create: (_) {

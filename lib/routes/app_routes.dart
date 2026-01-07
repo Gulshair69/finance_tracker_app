@@ -10,7 +10,6 @@ import '../screens/history_screen.dart';
 import '../screens/profile_screen.dart';
 import '../screens/analytics_screen.dart';
 import '../screens/budget_screen.dart';
-import '../screens/goals_screen.dart';
 import '../screens/category_management_screen.dart';
 import '../screens/recurring_transactions_screen.dart';
 import '../screens/initial_balance_screen.dart';
@@ -27,7 +26,6 @@ class AppRoutes {
   static const String profile = ProfileScreen.routeName;
   static const String analytics = AnalyticsScreen.routeName;
   static const String budget = BudgetScreen.routeName;
-  static const String goals = GoalsScreen.routeName;
   static const String categoryManagement = CategoryManagementScreen.routeName;
   static const String recurringTransactions = RecurringTransactionsScreen.routeName;
   static const String initialBalance = InitialBalanceScreen.routeName;
@@ -44,7 +42,6 @@ class AppRoutes {
     profile: (_) => ProfileScreen(),
     analytics: (_) => AnalyticsScreen(),
     budget: (_) => const BudgetScreen(),
-    goals: (_) => const GoalsScreen(),
     categoryManagement: (_) => const CategoryManagementScreen(),
     recurringTransactions: (_) => const RecurringTransactionsScreen(),
     initialBalance: (_) => const InitialBalanceScreen(),

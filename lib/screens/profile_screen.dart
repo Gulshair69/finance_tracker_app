@@ -102,22 +102,6 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   Divider(height: 1, color: Colors.grey.shade300),
                   ListTile(
-                    leading: Icon(Icons.flag, color: AppColors.primary),
-                    title: Text(
-                      "Goals",
-                      style: TextStyle(color: AppColors.text),
-                    ),
-                    trailing: Icon(
-                      Icons.arrow_forward_ios,
-                      size: 16,
-                      color: AppColors.grey,
-                    ),
-                    onTap: () {
-                      Navigator.pushNamed(context, AppRoutes.goals);
-                    },
-                  ),
-                  Divider(height: 1, color: Colors.grey.shade300),
-                  ListTile(
                     leading: Icon(Icons.account_balance, color: AppColors.primary),
                     title: Text(
                       "Update Initial Balance",
