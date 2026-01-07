@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../constants/app_colors.dart';
 import '../providers/auth_provider.dart';
 import '../providers/user_profile_provider.dart';
+import '../providers/theme_provider.dart';
 import '../routes/app_routes.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -14,68 +15,153 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final userProfileProvider = Provider.of<UserProfileProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
     final userEmail = authProvider.user?.email ?? "No Email";
     final initialBalance = userProfileProvider.initialBalance ?? 0.0;
+    
+    final isDarkBlue = themeProvider.isDarkBlue;
+    final backgroundColor = isDarkBlue ? AppColors.darkBlue : AppColors.background;
+    final primaryColor = isDarkBlue ? AppColors.yellow : AppColors.primary;
+    final textColor = isDarkBlue ? AppColors.white : AppColors.text;
+    final cardColor = isDarkBlue ? AppColors.darkBlueAccent : Colors.white;
+    final iconColor = isDarkBlue ? AppColors.yellow : AppColors.primary;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Profile"),
-        backgroundColor: AppColors.primary,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: isDarkBlue ? AppColors.yellow : Colors.white,
+          ),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
+            }
+          },
+          tooltip: 'Back',
+        ),
+        automaticallyImplyLeading: false,
+        title: Text(
+          "Profile",
+          style: TextStyle(color: isDarkBlue ? AppColors.yellow : Colors.white),
+        ),
+        backgroundColor: isDarkBlue ? AppColors.darkBlue : AppColors.primary,
+        actions: [
+          IconButton(
+            icon: Icon(
+              isDarkBlue ? Icons.light_mode : Icons.dark_mode,
+              color: isDarkBlue ? AppColors.yellow : Colors.white,
+            ),
+            onPressed: () {
+              themeProvider.toggleTheme();
+            },
+            tooltip: isDarkBlue ? 'Switch to Light Theme' : 'Switch to Dark Blue Theme',
+          ),
+        ],
       ),
+      backgroundColor: backgroundColor,
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
             CircleAvatar(
               radius: 50,
-              backgroundColor: AppColors.primary.withOpacity(0.3),
-              child: Icon(Icons.person, size: 60, color: AppColors.primary),
+              backgroundColor: primaryColor.withOpacity(0.3),
+              child: Icon(Icons.person, size: 60, color: primaryColor),
             ),
             SizedBox(height: 16),
             Text(
               userEmail,
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+              ),
             ),
             SizedBox(height: 8),
             Text(
               "Initial Balance: \$${initialBalance.toStringAsFixed(2)}",
-              style: TextStyle(fontSize: 16, color: AppColors.grey),
+              style: TextStyle(
+                fontSize: 16,
+                color: isDarkBlue ? AppColors.yellowAccent : AppColors.grey,
+              ),
             ),
             SizedBox(height: 24),
-            ListTile(
-              leading: const Icon(Icons.category, color: AppColors.primary),
-              title: const Text("Manage Categories"),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                Navigator.pushNamed(context, AppRoutes.categoryManagement);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.account_balance_wallet, color: AppColors.primary),
-              title: const Text("Budgets"),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                Navigator.pushNamed(context, AppRoutes.budget);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.flag, color: AppColors.primary),
-              title: const Text("Goals"),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {
-                Navigator.pushNamed(context, AppRoutes.goals);
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.account_balance, color: AppColors.primary),
-              title: const Text("Update Initial Balance"),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () => _showUpdateBalanceDialog(context, userProfileProvider),
+            Card(
+              color: cardColor,
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: Icon(Icons.category, color: iconColor),
+                    title: Text(
+                      "Manage Categories",
+                      style: TextStyle(color: textColor),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: textColor,
+                    ),
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.categoryManagement);
+                    },
+                  ),
+                  Divider(height: 1, color: isDarkBlue ? AppColors.darkBlue : Colors.grey.shade300),
+                  ListTile(
+                    leading: Icon(Icons.account_balance_wallet, color: iconColor),
+                    title: Text(
+                      "Budgets",
+                      style: TextStyle(color: textColor),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: textColor,
+                    ),
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.budget);
+                    },
+                  ),
+                  Divider(height: 1, color: isDarkBlue ? AppColors.darkBlue : Colors.grey.shade300),
+                  ListTile(
+                    leading: Icon(Icons.flag, color: iconColor),
+                    title: Text(
+                      "Goals",
+                      style: TextStyle(color: textColor),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: textColor,
+                    ),
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.goals);
+                    },
+                  ),
+                  Divider(height: 1, color: isDarkBlue ? AppColors.darkBlue : Colors.grey.shade300),
+                  ListTile(
+                    leading: Icon(Icons.account_balance, color: iconColor),
+                    title: Text(
+                      "Update Initial Balance",
+                      style: TextStyle(color: textColor),
+                    ),
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 16,
+                      color: textColor,
+                    ),
+                    onTap: () => _showUpdateBalanceDialog(context, userProfileProvider),
+                  ),
+                ],
+              ),
             ),
             SizedBox(height: 24),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
+                backgroundColor: primaryColor,
+                foregroundColor: isDarkBlue ? AppColors.darkBlue : Colors.white,
                 minimumSize: Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

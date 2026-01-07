@@ -32,7 +32,7 @@ class TransactionTypeSelector extends StatelessWidget {
             type: TransactionType.expense,
             label: 'Expense',
             icon: Icons.arrow_upward,
-            color: Colors.red,
+            color: AppColors.trueRed,
             isSelected: selectedType == TransactionType.expense,
             onTap: () => onTypeSelected(TransactionType.expense),
           ),

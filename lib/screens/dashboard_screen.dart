@@ -173,8 +173,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             title: "This Month Expense",
                             amount: '\$${monthlyExpense.toStringAsFixed(2)}',
                             icon: Icons.arrow_upward,
-                            color: Colors.red,
-                            backgroundColor: Colors.red.withOpacity(0.1),
+                            color: AppColors.trueRed,
+                            backgroundColor: AppColors.trueRed.withOpacity(0.1),
                           ),
                         ),
                       ],
@@ -189,11 +189,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             icon: Icons.savings,
                             color: savings >= 0
                                 ? AppColors.secondary
-                                : Colors.red,
+                                : AppColors.trueRed,
                             backgroundColor:
                                 (savings >= 0
                                         ? AppColors.secondary
-                                        : Colors.red)
+                                        : AppColors.trueRed)
                                     .withOpacity(0.1),
                           ),
                         ),

@@ -89,7 +89,7 @@ class BudgetCard extends StatelessWidget {
                 value: progress,
                 backgroundColor: Colors.grey.shade200,
                 valueColor: AlwaysStoppedAnimation<Color>(
-                  isExceeded ? Colors.red : AppColors.primary,
+                  isExceeded ? AppColors.brightRed : AppColors.primary,
                 ),
                 minHeight: 8,
               ),

@@ -18,7 +18,7 @@ class TransactionCard extends StatelessWidget {
       case TransactionType.income:
         return AppColors.secondary;
       case TransactionType.expense:
-        return Colors.red;
+        return AppColors.trueRed;
       case TransactionType.transfer:
         return Colors.blue;
     }

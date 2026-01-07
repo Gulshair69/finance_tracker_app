@@ -16,24 +16,31 @@ class IncomeExpensePieChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final total = income + expense;
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
 
     // Responsive sizing based on screen size
-    final chartSize = screenWidth < 360
-        ? screenWidth * 0.7
-        : screenWidth < 400
-        ? screenWidth * 0.75
-        : screenWidth * 0.8;
-    final centerSpaceRadius = screenWidth < 360
-        ? 40.0
-        : screenWidth < 400
-        ? 50.0
-        : 60.0;
-    final radius = screenWidth < 360
+    // Limit chart size to prevent overflow (max 180px to leave room for legend and padding)
+    final maxChartSize = 180.0;
+    final chartSize =
+        (screenWidth < 360
+                ? screenWidth * 0.7
+                : screenWidth < 400
+                ? screenWidth * 0.75
+                : screenWidth * 0.8)
+            .clamp(0.0, maxChartSize);
+
+    // Ensure centerSpaceRadius and radius fit within chartSize
+    final centerSpaceRadius =
+        (screenWidth < 360
+                ? 40.0
+                : screenWidth < 400
+                ? 50.0
+                : 60.0)
+            .clamp(0.0, chartSize / 3);
+    final radius = (screenWidth < 360
         ? 70.0
         : screenWidth < 400
         ? 85.0
-        : 100.0;
+        : 100.0);
     final fontSize = screenWidth < 360
         ? 10.0
         : screenWidth < 400
@@ -54,48 +61,58 @@ class IncomeExpensePieChart extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          // Use OverflowBox to allow labels to render outside strict bounds
           SizedBox(
-            height: chartSize,
-            width: chartSize,
-            child: PieChart(
-              PieChartData(
-                sectionsSpace: 2,
-                centerSpaceRadius: centerSpaceRadius,
-                sections: [
-                  PieChartSectionData(
-                    value: income,
-                    title: '\$${income.toStringAsFixed(0)}',
-                    color: AppColors.secondary,
-                    radius: radius,
-                    titleStyle: TextStyle(
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+            height: chartSize + 40, // Add extra space for labels
+            width: chartSize + 40, // Add extra space for labels
+            child: Center(
+              child: SizedBox(
+                height: chartSize,
+                width: chartSize,
+                child: PieChart(
+                  PieChartData(
+                    sectionsSpace: 2,
+                    centerSpaceRadius: centerSpaceRadius,
+                    sections: [
+                      PieChartSectionData(
+                        value: income,
+                        title: '\$${income.toStringAsFixed(0)}',
+                        color: AppColors.secondary,
+                        radius: radius.clamp(0.0, chartSize / 2 - 10),
+                        titleStyle: TextStyle(
+                          fontSize: fontSize,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      PieChartSectionData(
+                        value: expense,
+                        title: '\$${expense.toStringAsFixed(0)}',
+                        color: AppColors.trueRed,
+                        radius: radius.clamp(0.0, chartSize / 2 - 10),
+                        titleStyle: TextStyle(
+                          fontSize: fontSize,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
-                  PieChartSectionData(
-                    value: expense,
-                    title: '\$${expense.toStringAsFixed(0)}',
-                    color: Colors.red.shade400,
-                    radius: radius,
-                    titleStyle: TextStyle(
-                      fontSize: fontSize,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           // Legend
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: 24,
+            runSpacing: 12,
             children: [
               _buildLegendItem(
                 context,
@@ -103,11 +120,10 @@ class IncomeExpensePieChart extends StatelessWidget {
                 AppColors.secondary,
                 screenWidth,
               ),
-              const SizedBox(width: 16),
               _buildLegendItem(
                 context,
                 'Expense',
-                Colors.red.shade400,
+                AppColors.trueRed,
                 screenWidth,
               ),
             ],
@@ -131,12 +147,15 @@ class IncomeExpensePieChart extends StatelessWidget {
           height: screenWidth < 360 ? 12 : 16,
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        const SizedBox(width: 6),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: screenWidth < 360 ? 11 : 13,
-            fontWeight: FontWeight.w500,
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: screenWidth < 360 ? 11 : 13,
+              fontWeight: FontWeight.w500,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
@@ -279,7 +298,7 @@ class MonthlyTrendChart extends StatelessWidget {
               return FlSpot(index, expense);
             }).toList(),
             isCurved: true,
-            color: Colors.red.shade400,
+            color: AppColors.trueRed,
             barWidth: 3,
             dotData: FlDotData(show: true),
             belowBarData: BarAreaData(show: false),

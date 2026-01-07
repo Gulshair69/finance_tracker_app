@@ -131,7 +131,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                               style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.red,
+                                color: AppColors.trueRed,
                               ),
                             ),
                           ],
@@ -188,9 +188,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
             SizedBox(
-              height: 250,
+              height: 280, // Increased to accommodate chart labels
               child: IncomeExpensePieChart(
                 income: income,
                 expense: expense,
@@ -292,7 +292,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.red,
+                          color: AppColors.primary,
                         ),
                       ),
                     ],
