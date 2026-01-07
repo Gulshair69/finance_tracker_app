@@ -10,7 +10,6 @@ import 'providers/budget_provider.dart';
 import 'providers/goal_provider.dart';
 import 'providers/analytics_provider.dart';
 import 'providers/user_profile_provider.dart';
-import 'providers/theme_provider.dart';
 import 'routes/app_routes.dart';
 import 'screens/splash_screen.dart';
 
@@ -33,7 +32,6 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => BudgetProvider()),
         ChangeNotifierProvider(create: (_) => GoalProvider()),
         ChangeNotifierProvider(create: (_) => UserProfileProvider()),
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProxyProvider<TransactionProvider, AnalyticsProvider>(
           create: (_) {
             final analytics = AnalyticsProvider();
@@ -45,114 +43,53 @@ class MyApp extends StatelessWidget {
           },
         ),
       ],
-      child: Consumer<ThemeProvider>(
-        builder: (context, themeProvider, _) {
-          return MaterialApp(
+      child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Finance Manager',
-        theme: themeProvider.isDarkBlue ? _buildDarkBlueTheme() : _buildLightTheme(),
+        theme: ThemeData(
+          primaryColor: AppColors.primary,
+          scaffoldBackgroundColor: AppColors.background,
+          fontFamily: 'Poppins',
+          colorScheme: ColorScheme.light(
+            primary: AppColors.primary,
+            secondary: AppColors.secondary,
+            surface: AppColors.background,
+            background: AppColors.background,
+            error: AppColors.trueRed,
+            onPrimary: Colors.white,
+            onSecondary: Colors.white,
+            onSurface: AppColors.text,
+            onBackground: AppColors.text,
+          ),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+            elevation: 0,
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
+          floatingActionButtonTheme: const FloatingActionButtonThemeData(
+            backgroundColor: AppColors.primary,
+            foregroundColor: Colors.white,
+          ),
+          cardTheme: CardThemeData(
+            color: Colors.white,
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
         initialRoute: SplashScreen.routeName,
         routes: AppRoutes.routes,
-          );
-        },
-      ),
-    );
-  }
-
-  ThemeData _buildLightTheme() {
-    return ThemeData(
-      primaryColor: AppColors.primary,
-      scaffoldBackgroundColor: AppColors.background,
-      fontFamily: 'Poppins',
-      colorScheme: ColorScheme.light(
-        primary: AppColors.primary,
-        secondary: AppColors.secondary,
-        surface: AppColors.background,
-        background: AppColors.background,
-        error: Colors.red.shade400,
-        onPrimary: Colors.white,
-        onSecondary: Colors.white,
-        onSurface: AppColors.text,
-        onBackground: AppColors.text,
-      ),
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
-          foregroundColor: Colors.white,
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-      ),
-      cardTheme: CardThemeData(
-        color: Colors.white,
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-    );
-  }
-
-  ThemeData _buildDarkBlueTheme() {
-    return ThemeData(
-      primaryColor: AppColors.darkBlue,
-      scaffoldBackgroundColor: AppColors.darkBlue,
-      fontFamily: 'Poppins',
-      colorScheme: ColorScheme.dark(
-        primary: AppColors.darkBlue,
-        secondary: AppColors.yellow,
-        surface: AppColors.darkBlueAccent,
-        background: AppColors.darkBlue,
-        error: AppColors.trueRed,
-        onPrimary: AppColors.white,
-        onSecondary: AppColors.darkBlue,
-        onSurface: AppColors.white,
-        onBackground: AppColors.white,
-      ),
-      appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.darkBlue,
-        foregroundColor: AppColors.yellow,
-        elevation: 0,
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.yellow,
-          foregroundColor: AppColors.darkBlue,
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
-      ),
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: AppColors.yellow,
-        foregroundColor: AppColors.darkBlue,
-      ),
-      cardTheme: CardThemeData(
-        color: AppColors.darkBlueAccent,
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-      ),
-      textTheme: const TextTheme(
-        bodyLarge: TextStyle(color: AppColors.white),
-        bodyMedium: TextStyle(color: AppColors.white),
-        bodySmall: TextStyle(color: AppColors.white),
-        titleLarge: TextStyle(color: AppColors.yellow),
-        titleMedium: TextStyle(color: AppColors.yellow),
-        titleSmall: TextStyle(color: AppColors.yellow),
       ),
     );
   }

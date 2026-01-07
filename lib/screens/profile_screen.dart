@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../constants/app_colors.dart';
 import '../providers/auth_provider.dart';
 import '../providers/user_profile_provider.dart';
-import '../providers/theme_provider.dart';
 import '../routes/app_routes.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -15,23 +14,15 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final userProfileProvider = Provider.of<UserProfileProvider>(context);
-    final themeProvider = Provider.of<ThemeProvider>(context);
     final userEmail = authProvider.user?.email ?? "No Email";
     final initialBalance = userProfileProvider.initialBalance ?? 0.0;
-    
-    final isDarkBlue = themeProvider.isDarkBlue;
-    final backgroundColor = isDarkBlue ? AppColors.darkBlue : AppColors.background;
-    final primaryColor = isDarkBlue ? AppColors.yellow : AppColors.primary;
-    final textColor = isDarkBlue ? AppColors.white : AppColors.text;
-    final cardColor = isDarkBlue ? AppColors.darkBlueAccent : Colors.white;
-    final iconColor = isDarkBlue ? AppColors.yellow : AppColors.primary;
 
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back,
-            color: isDarkBlue ? AppColors.yellow : Colors.white,
+            color: Colors.white,
           ),
           onPressed: () {
             if (Navigator.canPop(context)) {
@@ -43,33 +34,18 @@ class ProfileScreen extends StatelessWidget {
           tooltip: 'Back',
         ),
         automaticallyImplyLeading: false,
-        title: Text(
-          "Profile",
-          style: TextStyle(color: isDarkBlue ? AppColors.yellow : Colors.white),
-        ),
-        backgroundColor: isDarkBlue ? AppColors.darkBlue : AppColors.primary,
-        actions: [
-          IconButton(
-            icon: Icon(
-              isDarkBlue ? Icons.light_mode : Icons.dark_mode,
-              color: isDarkBlue ? AppColors.yellow : Colors.white,
-            ),
-            onPressed: () {
-              themeProvider.toggleTheme();
-            },
-            tooltip: isDarkBlue ? 'Switch to Light Theme' : 'Switch to Dark Blue Theme',
-          ),
-        ],
+        title: const Text("Profile"),
+        backgroundColor: AppColors.primary,
       ),
-      backgroundColor: backgroundColor,
+      backgroundColor: AppColors.background,
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
             CircleAvatar(
               radius: 50,
-              backgroundColor: primaryColor.withOpacity(0.3),
-              child: Icon(Icons.person, size: 60, color: primaryColor),
+              backgroundColor: AppColors.primary.withOpacity(0.3),
+              child: Icon(Icons.person, size: 60, color: AppColors.primary),
             ),
             SizedBox(height: 16),
             Text(
@@ -77,7 +53,7 @@ class ProfileScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: textColor,
+                color: AppColors.text,
               ),
             ),
             SizedBox(height: 8),
@@ -85,72 +61,72 @@ class ProfileScreen extends StatelessWidget {
               "Initial Balance: \$${initialBalance.toStringAsFixed(2)}",
               style: TextStyle(
                 fontSize: 16,
-                color: isDarkBlue ? AppColors.yellowAccent : AppColors.grey,
+                color: AppColors.grey,
               ),
             ),
             SizedBox(height: 24),
             Card(
-              color: cardColor,
+              color: Colors.white,
               child: Column(
                 children: [
                   ListTile(
-                    leading: Icon(Icons.category, color: iconColor),
+                    leading: Icon(Icons.category, color: AppColors.primary),
                     title: Text(
                       "Manage Categories",
-                      style: TextStyle(color: textColor),
+                      style: TextStyle(color: AppColors.text),
                     ),
                     trailing: Icon(
                       Icons.arrow_forward_ios,
                       size: 16,
-                      color: textColor,
+                      color: AppColors.grey,
                     ),
                     onTap: () {
                       Navigator.pushNamed(context, AppRoutes.categoryManagement);
                     },
                   ),
-                  Divider(height: 1, color: isDarkBlue ? AppColors.darkBlue : Colors.grey.shade300),
+                  Divider(height: 1, color: Colors.grey.shade300),
                   ListTile(
-                    leading: Icon(Icons.account_balance_wallet, color: iconColor),
+                    leading: Icon(Icons.account_balance_wallet, color: AppColors.primary),
                     title: Text(
                       "Budgets",
-                      style: TextStyle(color: textColor),
+                      style: TextStyle(color: AppColors.text),
                     ),
                     trailing: Icon(
                       Icons.arrow_forward_ios,
                       size: 16,
-                      color: textColor,
+                      color: AppColors.grey,
                     ),
                     onTap: () {
                       Navigator.pushNamed(context, AppRoutes.budget);
                     },
                   ),
-                  Divider(height: 1, color: isDarkBlue ? AppColors.darkBlue : Colors.grey.shade300),
+                  Divider(height: 1, color: Colors.grey.shade300),
                   ListTile(
-                    leading: Icon(Icons.flag, color: iconColor),
+                    leading: Icon(Icons.flag, color: AppColors.primary),
                     title: Text(
                       "Goals",
-                      style: TextStyle(color: textColor),
+                      style: TextStyle(color: AppColors.text),
                     ),
                     trailing: Icon(
                       Icons.arrow_forward_ios,
                       size: 16,
-                      color: textColor,
+                      color: AppColors.grey,
                     ),
                     onTap: () {
                       Navigator.pushNamed(context, AppRoutes.goals);
                     },
                   ),
-                  Divider(height: 1, color: isDarkBlue ? AppColors.darkBlue : Colors.grey.shade300),
+                  Divider(height: 1, color: Colors.grey.shade300),
                   ListTile(
-                    leading: Icon(Icons.account_balance, color: iconColor),
+                    leading: Icon(Icons.account_balance, color: AppColors.primary),
                     title: Text(
                       "Update Initial Balance",
-                      style: TextStyle(color: textColor),
+                      style: TextStyle(color: AppColors.text),
                     ),
                     trailing: Icon(
                       Icons.arrow_forward_ios,
                       size: 16,
-                      color: textColor,
+                      color: AppColors.grey,
                     ),
                     onTap: () => _showUpdateBalanceDialog(context, userProfileProvider),
                   ),
@@ -160,8 +136,8 @@ class ProfileScreen extends StatelessWidget {
             SizedBox(height: 24),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                foregroundColor: isDarkBlue ? AppColors.darkBlue : Colors.white,
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
                 minimumSize: Size(double.infinity, 50),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

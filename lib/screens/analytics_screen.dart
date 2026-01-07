@@ -190,7 +190,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
             ),
             const SizedBox(height: 16),
             SizedBox(
-              height: 280, // Increased to accommodate chart labels
+              height: 300, // Increased to accommodate chart labels and legend
               child: IncomeExpensePieChart(
                 income: income,
                 expense: expense,
@@ -211,9 +211,12 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            SizedBox(
-              height: 250,
-              child: MonthlyTrendChart(monthlyData: monthlyData),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: SizedBox(
+                height: 280,
+                child: MonthlyTrendChart(monthlyData: monthlyData),
+              ),
             ),
 
             const SizedBox(height: 24),

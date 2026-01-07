@@ -34,11 +34,13 @@ class SummaryCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Flexible(
+              Expanded(
                 child: Text(
                   title,
                   style: TextStyle(
@@ -55,12 +57,17 @@ class SummaryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            amount,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: AppColors.text,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              amount,
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: AppColors.text,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
